@@ -1,0 +1,249 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard</title>
+  <link href="/dash.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+
+<style>
+  body{
+    background-color: #e7e7ed;
+  }
+  h5,h3{
+    background: -webkit-linear-gradient(315deg, #1e30f3 0%, #e21e80 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+  
+</style>
+
+ 
+
+<body>
+  <div class="container-lg">
+    <section class="py-3 text-center container" id="{{data2}}">
+      {% if session['authenticated'] and data2 %}
+        <form action="/files/uploader" method="post" enctype="multipart/form-data">
+          <div class="col-lg-6 col-md-8 mx-auto">
+            <h5 class="text-center animate__animated animate__bounceInLeft"><b>Share a photo that talks about it.</b></h5>
+            <textarea id="post_text" name="text" class="form-control" placeholder="What are you up to?" rows="3" required></textarea>
+            <div class="input-group mb-4">
+              <input type="file" accept="image/*" class="form-control imginp" name="file" id="inputGroupFile02" required>
+            </div>
+            <p>
+              <button id="sharememBut" class="btn btn-primary my-2" type="submit">Share memory</button>
+              <a href="/secret" class="btn btn-info my-2 animate__animated animate__zoomIn">Secret Page</a>
+              <a href="/api/v1/deauth" class="btn btn-danger my-2">Logout</a>
+              <a href="/chatbox" class="btn btn-secondary my-2">chatbox</a>
+            </p>
+          </div>
+        </form>
+      {% else %}
+      <h5 class="text-center animate__animated animate__bounceInLeft"><b>Share a photo that talks about it.</b></h5>
+        <a href="/login" class="btn btn-primary my-2 animate__animated animate__tada">Login</a>
+        <a href="/register" class="btn btn-secondary my-2 animate__animated animate__tada">Register</a>
+      </section>
+     {% endif %}
+
+    <div class="album py-5 alb">
+      <div class="container">
+        <h3 id="total-posts" class="text-center animate__animated animate__bounceInLeft"><b>Welcome {{session['username']}}</b></h3>
+        <div class="row" id="masonry-area">
+          {% for item in data %}
+          <div class="col-lg-3 mb-4" id="{{item['id']}}">
+            <div class="card">
+              <img class="bd-placeholder-img card-img-top" src="/files/open/{{item['imageurl']}}">
+              <p class="text-center"><b>@{{item['owner']}}</b></p>
+              <div class="card-body">
+                <p class="card-text">{{item['text']}}</p>
+                <small class="likecls fa fa-heart text-primary"> {{item['likes']}}</small>
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="btn-group" data-id="{{item['imageurl']}}" data1="{{item['id']}}">
+                    {% if session['authenticated'] %}
+                    <button class="btn btn-sm btn-primary btn-like">{{item['like']}}</button>
+                    {% endif %}
+                    {% if item['owner'] == session['username'] %}
+                    <button type="button" class="btn btn-sm btn-danger delbut">Delete</button>
+                    {% endif %}
+                  </div>
+                  <small class="text-muted">{{item['time']}}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+<!-- sibi modal -->
+<div id="modalsGarbage">
+  <div class="modal fade" id="dummy-dialog-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title"></h5>
+                  <div class="modal-subtitle float-end text-small"></div>
+              </div>
+              <div class="modal-body">
+              </div>
+              <div class="modal-footer">
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+
+
+<script src="/dialog.js"> </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha384-GNFwBvfVxBkLMJpYMOABq3c+d3KnQxudP/mGPkzpZSTYykLBNsZEnG2D9G/X/+7D" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+ <script>
+ // init Masonry
+ var $grid = $('.row').masonry({
+  percentPosition: true
+    // options...
+  });
+  // layout Masonry after each image loads
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+
+  });
+</script>
+
+<!-- delte but dialog -->
+<script>
+  $(".delbut").on('click',function(){
+    console.log("press del")
+
+    postimgurl=$(this).parent().attr('data-id')
+    postid=$(this).parent().attr('data1')
+    d=new Dialog("delete post ","  Are you sure");
+  
+    d.setButtons([
+      {
+      "name":"delete",
+      "class":"btn-danger",
+       onClick: function(event){
+        console.log("this "+postid+" is deleted");
+        
+
+        $.post("/files/delete",
+        {
+          imageid:postimgurl
+        },
+        function(data){
+         
+          
+          if (data['status']==200) {
+            $('#'+postid).remove();
+            
+          } else {
+            console.log("ada dai failed")
+          }
+          
+          })
+        
+          $(event.data.modal).modal('hide');
+      }
+      },
+
+      {
+        name: "Close",
+        class: "btn-warning",
+        
+        onClick: function(event){
+            $(event.data.modal).modal('hide');
+        }
+      }  
+
+  ])
+    d.show()
+
+  });
+
+
+
+
+$('.btn-like').on('click', function(){
+    
+    postimgurl=$(this).parent().attr('data-id');
+    postid=$(this).parent().attr('data1');
+    var likeCountElement = $(this).closest('.card').find('.likecls');
+    var likeCount = parseInt(likeCountElement.text());
+    
+    $this = $(this);
+    $(this).html() == "Like" ? $(this).html("Liked") : $(this).html("Like");
+    $(this).hasClass('btn-outline-primary') ? $(this).removeClass('btn-outline-primary').addClass('btn-primary') : $(this).removeClass('btn-primary').addClass('btn-outline-primary');
+   
+    // $(this).html("liked")
+       
+        $.post("/files/like",
+        {
+          imageid:postid
+        },
+        function(data){
+         
+          
+          if (data['data']=="unlike") {
+            console.log("unlike");
+            $($this).html("Like");
+            $($this).removeClass('btn-primary').addClass('btn-outline-primary');
+            
+            a=parseInt($(likeCountElement).text())
+            var result = a-1;
+            $(likeCountElement).text(" "+result);
+            
+            
+          } 
+          else if(data['data']=="liked"){
+            console.log("liked");
+            $($this).html("Liked");
+            $($this).removeClass('btn-outline-primary').addClass('btn-primary');
+
+            a=parseInt($(likeCountElement).text())
+            var result = a+1;
+            $(likeCountElement).text(" "+result);
+
+            
+
+          }
+          else {
+            console.log(data)
+          }
+          
+          })
+
+  });
+
+</script>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HLS Stream</title>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            background-color: #beaeae;
+            overflow: auto;
+        }
+        #input-container {
+            background-color: #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin-top: 40px;
+            width: 80%;
+            max-width: 600px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            width: 80%;
+            margin-top: 20px;
+        }
+        .video-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease-in-out;
+        }
+        .video-container:hover {
+            transform: translateY(-5px);
+        }
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        input, button {
+            border: none;
+            padding: 10px;
+            margin: 0 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        input {
+            flex-grow: 1;
+            box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="input-container">
+        <input type="text" id="baseUrlInput" value="https://jawa.selfmade.technology/hls/" placeholder="https://jawa.selfmade.technology/hls/">
+        <input type="text" id="streamKeyInput" placeholder="Enter Stream Key">
+        <button id="loadVideoButton">Load Video</button>
+    </div>
+    
+    
+    <div class="video-grid" id="videos"></div>
+    
+    <script>
+        $(document).ready(function() {
+            var usedStreamKeys = {}; // Object to keep track of used stream keys
+            var defaultBaseUrl = 'https://jawa.selfmade.technology/hls/';
+    
+            $('#loadVideoButton').on('click', function() {
+            
+                var baseUrl = $('#baseUrlInput').val().trim();
+                var streamKey = $('#streamKeyInput').val().trim();
+
+                // Use the default base URL if the input field is empty
+                if (!baseUrl) {
+                    baseUrl = defaultBaseUrl;
+                }
+
+                if (!baseUrl.endsWith('/')) {
+                    baseUrl += '/'; // Ensure the base URL ends with a slash
+                }
+                    
+                if (!streamKey) {
+                    alert("Please enter a stream key.");
+                    return;
+                }
+    
+                if (usedStreamKeys[streamKey]) {
+                    // Stream key is already used, handle accordingly
+                    alert("This stream key is already in use.");
+                    return;
+                }
+                var videoSrc = baseUrl + streamKey + '.m3u8';
+                // var videoSrc = 'http://172.20.26.217:8080/hls/' + streamKey + '.m3u8';
+                
+                // Mark this stream key as used
+                usedStreamKeys[streamKey] = true;
+    
+                // Check if the stream URL is valid
+                fetch(videoSrc)
+                    .then(response => {
+                        if (response.ok) {
+                            // The stream is valid, create video element and play it
+                            createVideoElement(videoSrc, streamKey);
+                        } else {
+                            // The stream is not valid, handle error
+                            console.error('Stream not found: ', videoSrc);
+                            alert("Stream not found: " + videoSrc);
+                            delete usedStreamKeys[streamKey]; // Remove the stream key from used keys
+                        }
+                    })
+                    .catch(error => {
+                        // Network error or CORS issue, handle accordingly
+                        console.error('Error fetching the stream: ', error);
+                        delete usedStreamKeys[streamKey]; // Remove the stream key from used keys
+                    });
+            });
+            
+            function createVideoElement(videoSrc, streamKey) {
+                // Create video container dynamically using jQuery
+                var $videoContainer = $('<div>', { class: 'video-container', 'data-stream-key': streamKey });
+                var $video = $('<video>', { controls: true });
+                
+                $videoContainer.append($video);
+                $('#videos').append($videoContainer);
+        
+                if (Hls.isSupported()) {
+                    var hls = new Hls();
+                    hls.loadSource(videoSrc);
+                    hls.attachMedia($video[0]);
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        $video[0].play();
+                    });
+        
+                    // Handle HLS errors
+                    hls.on(Hls.Events.ERROR, function (event, data) {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    // try to recover network error
+                                    console.error("Network error encountered, try to recover");
+                                    hls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error("Media error encountered, try to recover");
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    // cannot recover, remove the video container
+                                    $videoContainer.remove();
+                                    console.error("Cannot recover from error, removed the video container");
+                                    delete usedStreamKeys[streamKey]; // Remove the stream key from used keys
+                                    break;
+                            }
+                        }
+                    });
+                } else if ($video.canPlayType('application/vnd.apple.mpegurl')) {
+                    $video.attr('src', videoSrc);
+                    $video.on('loadedmetadata', function () {
+                        this.play();
+                    });
+                    $video.on('error', function () {
+                        // Remove the video container if an error occurs
+                        $videoContainer.remove();
+                        console.error("Error loading video, removed the video container");
+                        delete usedStreamKeys[streamKey]; // Remove the stream key from used keys
+                    });
+                }
+            }
+        });
+    </script>
+    
+    </body>
+    </html>
