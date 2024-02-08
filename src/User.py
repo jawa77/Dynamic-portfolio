@@ -13,6 +13,7 @@ import re
 
 db = Database.get_connection()
 users = db.users # create a collection users if it doesn't exist
+current_epoch = int(time())
 
 class UserCollection(metaclass=MongoGetterSetter):
     def __init__(self, username):
@@ -78,6 +79,7 @@ class User:
                 "register_time": time(),
                 "active": False,
                 "activate_token": activeToken,
+                "last_otpTime":0,
                 "id": uuid,
                 "name": name,
                 "email": email
@@ -96,18 +98,22 @@ class User:
         pattern = r'[~!#$%@^&*()+{}\[\]_:,;"\'<>/\|\\]'
         otp=re.sub(pattern, '', otp)
         
-
+        last_otp_epoch = result['last_otpTime']
         if(result==None):
              return 444
-       
         else:
-            if(result['activate_token']==int(otp)):
-                filter_criteria = {"email": email}
-                update_data = {"$set": {"active": True}}
-                users.update_one(filter_criteria, update_data)
-                return True
+            if last_otp_epoch == 0 or (current_epoch - last_otp_epoch) > 86400:
+                if(result['activate_token']==int(otp)):
+                    filter_criteria = {"email": email}
+                    update_data = {"$set": {"active": True,"last_otpTime":current_epoch}}
+                    users.update_one(filter_criteria, update_data)
+                    return True
+                else:
+                    return False
             else:
-                return False
+                return "mail-sended-already"
+                       
+           
         
                  
 

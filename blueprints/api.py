@@ -121,16 +121,25 @@ def otpverify():
       a=User.otpVerify(email,otp)
       if a==True:
          return redirect(url_for('home.login'))
+
+      elif a=="mail-sended-already":
+         return {
+            "message": "OTP Already Sended",
+            "look": "if you found any bugs report to me"
+         }, 400
+
       elif a==444:
          return {
             "message": "Don't try to hack ",
             "look": "if you found any bugs report to me"
          }, 400
+
       else:
          return {
             "message": "Wrong Otp Go back and try again ",
             "otp check": False
          }, 400
+
    else:
          return {
             "message": "Not enough parameters",
