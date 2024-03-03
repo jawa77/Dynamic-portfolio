@@ -74,8 +74,4 @@ def chat():
    return render_template('chatbox.html', session=session ,data=getallchat)
 
 
-@bp.route("/getjson")
-def getjsn():
-   data={"aa":"aa","bb":"11"}
-   return jsonify(data)
 
