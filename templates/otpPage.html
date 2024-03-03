@@ -1,8 +1,6 @@
-
-
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -10,35 +8,84 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-  
-    <title>Otp Center</title>
-  </head>
-  <style>
-    
-  </style>
-  <body class="vh-100 bg-image" style="background-image: url('bgg.jpg');">
-    
- 
-    <form action="/api/v1/otpverify" method="post">
-    <div class="card text-center animate__animated animate__zoomIn" style="border-radius: 80px; margin-top: 40vh; background-color: rgb(221, 210, 210);" >
-        <div class="card-header">
-          Check your mail inbox if you are not received mail contact <a href="https://www.instagram.com/cyber__jawa/" target="_blank">cyber__jawa</a> on insta
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">Mail sended to  {{data}}</h5>
-          
-          <input placeholder="Enter OTP" type="text" name="otp" required><br>
-          <input type="hidden" name="email" value={{data}} required>
-          <button type="submit">verify</button>
-        </div>
-        
-      </div>
-    </form>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  </body>
+    <title>Otp Center</title>
+</head>
+<style>
+    body {
+        background-color: black; /* Background theme */
+        color: green; /* Text color */
+    }
+    .card {
+        background-color: rgb(43, 38, 38); /* Card background to match theme */
+        color: green; /* Card text color */
+        border-color: azure; /* Border color */
+    }
+    .btn {
+        background-color: green; /* Button color */
+        color: white; /* Button text color */
+        border: none; /* Button border */
+    }
+    a, a:hover, a:focus {
+        color: lightgreen; /* Links color */
+        text-decoration: none; /* No underline */
+    }
+    .form-control {
+        background-color: #0f0f0f; /* Input background */
+        color: #00ff00; /* Input text color */
+        border: 1px solid #00ff00; /* Input border color */
+        border-radius: 4px; /* Slightly rounded borders for input */
+    }
+    .form-control:focus {
+        background-color: #0f0f0f; /* Maintain background on focus */
+        border: 1px solid #00ff00; /* Maintain border color on focus */
+        box-shadow: none; /* Remove Bootstrap's default focus glow */
+    }
+    .form-group {
+        margin-bottom: 1rem; /* Adjust spacing */
+    }
+    .card-header, .card-body {
+        padding: 1rem 1.25rem; /* Adjust card padding */
+    }
+    .card {
+        margin-top: 10vh; /* Adjust top margin */
+        border-radius: 10px; /* Rounded corners for the card */
+    }
+    .card-title {
+        margin-bottom: 1.5rem; /* Adjust title margin bottom */
+    }
+    input[type="submit"] {
+        cursor: pointer; /* Change cursor on hover */
+    }
+</style>
+<body>
+
+<form action="/api/v1/otpverify" method="post">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card text-center animate__animated animate__zoomIn">
+                    <div class="card-header">
+                        Check your mail inbox. If you have not received the mail, contact <a href="https://www.instagram.com/cyber__jawa/" target="_blank">cyber__jawa</a> on Instagram.
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Mail sent to {{data}}</h5>
+                        <div class="form-group">
+                            <input placeholder="Enter OTP" type="text" name="otp" class="form-control" required>
+                        </div>
+                        <input type="hidden" name="email" value={{data}} required>
+                        <button type="submit" class="btn">Verify</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/js/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+</body>
 </html>

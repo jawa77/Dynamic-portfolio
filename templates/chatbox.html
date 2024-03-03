@@ -1,91 +1,110 @@
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chatbox</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-  </head>
-  <style>
-    #left{
-        height: 100vh;
-        overflow: auto;
-        
-    }
-    #right{
-        height: 90vh;
-        overflow: auto;
-       
-    }
-    #userinp{
-        padding: 5px;
-        
-    }
-  </style>
-  <body>
+    <style>
+        body {
+            background-color: #121212; /* Darker background for better contrast */
+            color: #B0BEC5; /* Lighter text for readability */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-sm-3 col-md-6 col-lg-3 bg-success" id="left">
-            Lorem ipsum dol <br>or sit amet, <br>consectetur adipisicing elit, sed <br> do eiusmod temp <br>or incididunt ut labore et dolore magna aliqua.
-            sit amet, <br>c<br>or sit amet, <br>c<br>or sit amet, <br>c<br>or sit amet, <br>cvvv<br>or sit amet, <br>c<br>or sit amet, <br>c
-            Ut enim ad minim veniam, quis <br> nostrud exercitation ullamco labori <br>s nisi <br> ut aliquip ex ea commodo consequat.
-          </div>
+        #right {
+            height: 80vh; /* Adjusted for better layout */
+            overflow-y: auto;
+            background-color: #1E1E1E; /* Slightly lighter shade for differentiation */
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0; /* Added top and bottom margin */
+        }
 
-          <div class="col-sm-9 col-md-6 col-lg-9 bg-warning">
+        .card {
+            background-color: #252526; /* Slightly different shade for depth */
+            color: #B0BEC5;
+            margin-bottom: 15px; /* Reduced for compactness */
+            border: none; /* Removed border */
+        }
 
-           
+        .card-header {
+            background-color: #1E1E1E; /* Header background */
+            color: #9E9E9E; /* Muted text color for non-primary content */
+            font-size: 0.85rem; /* Smaller font size for meta data */
+            padding: 8px 15px; /* Adjusted padding */
+        }
+
+        .card-body {
+            background-color: #252526; /* Body background */
+            color: #ECEFF1; /* Brighter text color for main content */
+            padding: 10px 15px; /* Adjusted padding */
+        }
+
+        .input-group {
+            padding: 10px 20px; /* Adjusted outer spacing */
+            background-color: #121212; /* Matching the body background */
+        }
+
+        .form-control {
+            background-color: #333333; /* Dark field background */
+            color: #ECEFF1; /* Light text color for contrast */
+            border: 2px solid #37474F; /* Subtle border color */
+        }
+
+        .btn-primary {
+            background-color: #0D47A1; /* More vibrant button color */
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #1565C0; /* Slightly lighter on hover for feedback */
+        }
+
+        /* Time visibility enhancement */
+        .time-text {
+            color: #78909C; /* Lighter, but muted color for time */
+            float: right; /* Aligns time to the right */
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-sm-12 col-md-10 col-lg-8">
             <div id="right">
-            
-              {% for item in data %}
-                <div class="card mb-2 {{item['mesid']}}">
+                {% for item in data %}
+                <div class="card mb-3 {{item['mesid']}}">
                     <div class="card-header">
-                      {{item['username']}} {{item['time']}}
+                        {{item['username']}}
+                        <span class="time-text">{{item['time']}}</span>
                     </div>
                     <div class="card-body">
-                      <blockquote class="blockquote mb-0">
-                        <p>{{item['message']}}</p>
-                  
-                      </blockquote>
+                        <p class="card-text">{{item['message']}}</p>
                     </div>
-                  </div>
-              {% endfor %}
-                 
-
-              
-                 
+                </div>
+                {% endfor %}
             </div>
-            <div class="input-group" id="userinp">
-                <input type="text" class="form-control" placeholder="Reply here" id="mesINpt">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Reply here..." id="mesINpt">
                 <button class="btn btn-primary" type="button" id="msgbut">Send</button>
-                
-              </div>  
-         </div>
+            </div>
         </div>
-      </div>
-    
-        
-   
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
- <script>
+    </div>
+</div>
 
-    $("#msgbut").on('click',function(){
-        var inpval=$('#mesINpt').val()
-        
-        $.post("/files/chatUpdate",
-        {
-          message:inpval
-        },
-        function(data){
-
-
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+<script>
+    $("#msgbut").on('click', function() {
+        var inpval = $('#mesINpt').val();
+        $.post("/files/chatUpdate", { message: inpval }, function(data) {
+            // Consider adding code to dynamically insert the message into the chat view
         });
-        $('#mesINpt').val("")
-
-
-   });
- </script>
+        $('#mesINpt').val(""); // Clear the input field after sending
+    });
+</script>
 </body>
 </html>

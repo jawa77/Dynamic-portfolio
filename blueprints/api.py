@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, session
+from flask import Blueprint, render_template, redirect, url_for, request, session,jsonify
 from src.User import User
 from src.Session import Session
 from src.Database import Database
@@ -13,32 +13,36 @@ db = Database.get_connection()
 
 @bp.route("/register", methods=['POST'])
 def register():
-   if 'username' in request.form and 'password' in request.form and 'name' in request.form and 'email' in request.form:
-      username = request.form['username']
-      password = request.form['password']
-      name = request.form['name']
-      email = request.form['email']
-      pattern = r'[~!#$%^&*()+{}\[\]_:,;"\'<>/\|\\]'
-      username=re.sub(pattern, '', username)
-      email=re.sub(pattern, '', email)
-      name=re.sub(pattern, '', name)
-      try:
-         uid = User.register(username, password, password, name, email)
-         
-         data_param = {'data': email}
-         return redirect(url_for('home.otpage',**data_param))
-         # return {
-         #    "message": "Successfully Registered",
-         #    "user_id": uid
-         # }, 200
-      except Exception as e:
-         return {
-            "message": str(e),
-         }, 400
-   else:
-      return {
-         "message": "Not enough parameters",
-      }, 400
+    # Check if all fields are present in the form data
+    if all(field in request.form for field in ['username', 'password', 'name', 'email']):
+        username = request.form['username']
+        password = request.form['password']
+        name = request.form['name']
+        email = request.form['email']
+
+        # Simplistic check for username and password length
+        if len(username) <= 5 or len(password) <= 8:
+            return jsonify({"message": "Username or password too short"}), 400
+
+        # Email format basic validation
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            return jsonify({"message": "Invalid email address"}), 400
+
+        try:
+            # Directly pass the cleaned data to your User registration logic
+            # This is a placeholder; replace with your actual User model registration logic
+            uid = User.register(username, password,password, name, email)
+            
+            # Assuming the registration was successful, redirect or respond accordingly
+            data_param = {'data': email}
+            return redirect(url_for('home.otpage', **data_param))
+        except Exception as e:
+            # Handle any exceptions that arise during registration
+            return jsonify({"message": str(e)}), 400
+    else:
+        # If any of the required fields are missing in the form data
+        return jsonify({"message": "Not enough parameters"}), 400
+
 
 @bp.route("/auth", methods=['POST'])
 def authenticate():
@@ -63,8 +67,8 @@ def authenticate():
       if 'username' in request.form and 'password' in request.form:
          username = request.form['username']
          password = request.form['password']
-         pattern = r'[~!#$%^&*()+{}\[\]_:,;"\'<>/\|\\]'
-         username=re.sub(pattern, '', username)
+         if not re.match(r'^[\w.@+-]+$', username):
+               return jsonify({"message": "Invalid username", "authenticated": False}), 400
          try:
             sessid = User.login(username, password)
             session['authenticated'] = True
@@ -75,12 +79,6 @@ def authenticate():
                return redirect(url_for('home.dashboard'))
             else:
                return redirect(url_for('home.dashboard'))
-               # return {
-               #    "message": "Successfully Authenticated",
-               #    "authenticated": True,
-               #    # "session_id": sessid,
-               #    "username": username
-               # }, 200
                
             
          except Exception as e:
@@ -101,10 +99,6 @@ def deauth():
       session['authenticated'] = False
       session['secret']=False
       session['username']= " Pls Login"
-      # return {
-      #    "message": "Successfully Deauthed",
-      #    "authenticated": False
-      # }, 200
       return redirect(url_for('home.dashboard'))
    else:
       return {
@@ -121,8 +115,7 @@ def otpverify():
       a=User.otpVerify(email,otp)
       if a==True:
          return redirect(url_for('home.login'))
-
-      elif a=="mail-sended-already":
+      elif a==244:
          return {
             "message": "OTP Already Sended",
             "look": "if you found any bugs report to me"
@@ -161,14 +154,20 @@ def secret():
          }, 400
    else:
       return redirect(url_for('home.login'))
-   
+
+risky_commands = ['rm', 'shutdown', 'reboot','mv','apt','install','wget','curl','git','nc','&&','&']
+
 @bp.route("/lincmds",methods=['POST','GET'])  
 def execute_linux_command():
   
-   
    if session.get('secret') and 'cmds' in request.form:
       command=request.form['cmds']
-      print(command)
+      # base_command = command.split()[0]
+
+      if any(risky_cmd in command for risky_cmd in risky_commands):
+         return {
+            "message": "Ithu Not Allowed"
+         }, 200
       try:
         result = subprocess.run(command, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
       

@@ -111,7 +111,7 @@ class User:
                 else:
                     return False
             else:
-                return "mail-sended-already"
+                return 244
                        
            
         
