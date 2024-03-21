@@ -2,3 +2,4 @@ config.json
 del/
 src/__pycache__/
 blueprints/__pycache__
+__pycache__
