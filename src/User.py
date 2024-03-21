@@ -98,10 +98,11 @@ class User:
         pattern = r'[~!#$%@^&*()+{}\[\]_:,;"\'<>/\|\\]'
         otp=re.sub(pattern, '', otp)
         
-        last_otp_epoch = result['last_otpTime']
+        
         if(result==None):
              return 444
         else:
+            last_otp_epoch = result['last_otpTime']
             if last_otp_epoch == 0 or (current_epoch - last_otp_epoch) > 86400:
                 if(result['activate_token']==int(otp)):
                     filter_criteria = {"email": email}

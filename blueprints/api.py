@@ -155,7 +155,7 @@ def secret():
    else:
       return redirect(url_for('home.login'))
 
-risky_commands = ['rm', 'shutdown', 'reboot','mv','apt','install','wget','curl','git','nc','&&','&']
+risky_commands = ['rm', 'shutdown','python', 'reboot','mv','apt','install','wget','curl','git','nc','&&','&','%','/']
 
 @bp.route("/lincmds",methods=['POST','GET'])  
 def execute_linux_command():
@@ -183,7 +183,6 @@ def execute_linux_command():
        return {
             "message": "you need access"
          }, 400
-
 
 
 @bp.route("/cpuACTusr",methods=['POST','GET'])  
